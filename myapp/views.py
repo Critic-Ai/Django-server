@@ -11,7 +11,7 @@ load_dotenv(find_dotenv())
 # URI = os.environ['DB_URI']
 # uri = URI
 
-uri = "mongodb+srv://main:iLadiesNuts911@cluster0.wda04dt.mongodb.net/?retryWrites=true&w=majority"
+uri = ""
 
 client = MongoClient(uri, server_api=ServerApi('1'))
 
