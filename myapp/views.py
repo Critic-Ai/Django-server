@@ -2,18 +2,14 @@ import os
 from dotenv import load_dotenv, find_dotenv
 
 from django.http import JsonResponse
-from bson import ObjectId
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
 load_dotenv(find_dotenv())
 
-# URI = os.environ['DB_URI']
-# uri = URI
+URI = os.environ['DB_URI']
 
-uri = ""
-
-client = MongoClient(uri, server_api=ServerApi('1'))
+client = MongoClient(URI, server_api=ServerApi('1'))
 
 
 def get_records(request):
