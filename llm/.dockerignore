@@ -1,0 +1,16 @@
+# Exclude common Python and development files
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.pyo
+*.pyc
+*.pyo
+*.pyd
+*.git
+.gitignore
+.DS_Store
+*.log
+*.vscode/
+.idea/
+*.egg-info/
