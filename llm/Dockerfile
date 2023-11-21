@@ -10,10 +10,8 @@ COPY . /app
 ENV CMAKE_ARGS="-DLLAMA_CUBLAS=on"
 
 # Install project dependencies
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Command to run the server
 CMD ["python", "./server.py"]
-
-# Expose the port your app runs on
-EXPOSE 8080
