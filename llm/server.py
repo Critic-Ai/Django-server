@@ -108,7 +108,7 @@ async def transmit(websocket, path):
 async def main():
 
     # start_server = await websockets.serve(transmit, "192.168.255.31", PORT)
-    start_server = await websockets.serve(transmit, "127.0.0.1", PORT)
+    start_server = await websockets.serve(transmit, "0.0.0.0", PORT) # for docker container the host is set to 0.0.0.0
     print("Server Started with URL : ", start_server.server)
     print("Started server on port : ", PORT)
     await start_server.wait_closed()
