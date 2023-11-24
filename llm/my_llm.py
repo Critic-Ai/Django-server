@@ -23,16 +23,18 @@ from llama_index.prompts import PromptTemplate
 # environment = """
 # index_name = ""
 
-model_url = "https://huggingface.co/TheBloke/Llama-2-13B-chat-GGUF/resolve/main/llama-2-13b-chat.Q4_0.gguf"
+# model_url = "https://huggingface.co/TheBloke/Llama-2-13B-chat-GGUF/resolve/main/llama-2-13b-chat.Q4_0.gguf"
 
+INDICES = "indexcache_BAAI"
+
+llm_models = ["zephyr-7b-beta.Q4_K_M.gguf", "llama-2-13b-chat.Q4_0.gguf"]
+embed_models = ["sentence-transformers/all-mpnet-base-v2", "BAAI/bge-base-en-v1.5"]
 
 def get_llm():
 
     llm = LlamaCPP(
-        # You can pass in the URL to a GGML model to download it automatically
-        # model_url=model_url,
-        # optionally, you can set the path to a pre-downloaded model instead of model_url
-        model_path="llama-2-13b-chat.Q4_0.gguf",
+        model_url=None,
+        model_path=llm_models[1],
         temperature=0.1,
         max_new_tokens=2048,
         # llama2 has a context window of 4096 tokens, but we set it lower to allow for some wiggle room
@@ -48,19 +50,6 @@ def get_llm():
         verbose=True,
     )
 
-    # llm = HuggingFaceLLM(
-    #     model_name="zephyr-7b-beta.Q4_K_M.gguf",
-    #     tokenizer_name="zephyr-7b-beta.Q4_K_M.gguf",
-    #     query_wrapper_prompt=PromptTemplate("<|system|>\n</s>\n<|user|>\n{query_str}</s>\n<|assistant|>\n"),
-    #     context_window=3900,
-    #     max_new_tokens=2048,
-    #     model_kwargs={},
-    #     # tokenizer_kwargs={},
-    #     generate_kwargs={"temperature": 0.7, "top_k": 50, "top_p": 0.95},
-    #     messages_to_prompt=messages_to_prompt,
-    #     device_map="auto",
-    # )
-
     return llm
 
 
@@ -69,7 +58,7 @@ def get_query_engine(llm, filename):
 
     print("-----LOGGING----- start query_engine")
     embed_model = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-mpnet-base-v2"
+        model_name=embed_models[1]
     )
     # create a service context
     service_context = ServiceContext.from_defaults(
@@ -105,7 +94,7 @@ def get_query_engine_from_cache(llm,filename):
     print("-----LOGGING----- start qengine_cache")
 
     embed_model = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-mpnet-base-v2"
+        model_name=embed_models[1]
     )
     # create a service context
     service_context = ServiceContext.from_defaults(
@@ -113,13 +102,13 @@ def get_query_engine_from_cache(llm,filename):
         embed_model=embed_model,
     )
 
-    # storage_context = StorageContext.from_defaults(
-    #     docstore=SimpleDocumentStore.from_persist_dir(persist_dir = f"./indexcache/{filename}"),
-    #     vector_store=SimpleVectorStore.from_persist_dir(persist_dir = f"./indexcache/{filename}"),
-    #     index_store=SimpleIndexStore.from_persist_dir(persist_dir = f"./indexcache/{filename}"),
-    # )
+    storage_context = StorageContext.from_defaults(
+        docstore=SimpleDocumentStore.from_persist_dir(persist_dir = f"./indices/{INDICES}/{filename}"),
+        vector_store=SimpleVectorStore.from_persist_dir(persist_dir = f"./indices/{INDICES}/{filename}"),
+        index_store=SimpleIndexStore.from_persist_dir(persist_dir = f"./indices/{INDICES}/{filename}"),
+    )
 
-    storage_context = StorageContext.from_defaults(persist_dir=f"./indexcache/{filename}")
+    # storage_context = StorageContext.from_defaults(persist_dir=f"./indexcache_BAAI/{filename}")
 
     print("-----LOGGING----- loading index from cache as new_index")
 
@@ -143,7 +132,7 @@ def get_query_engine_supabase(llm, filename):
 
     print("-----LOGGING----- start query_engine - SUPABASE")
     embed_model = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-mpnet-base-v2"
+        model_name=embed_models[1]
     )
     # create a service context
     service_context = ServiceContext.from_defaults(
