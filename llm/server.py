@@ -5,30 +5,35 @@ import my_llm
 import time
 
 PORT = 2023
-ENGINE = "LOCAL"
 
-# create a VideoCapture object
-llm =  None if ENGINE == "API" else my_llm.get_llm() 
-queryEngine = my_llm.openAI_queryEngine() if ENGINE == "API" else my_llm.get_query_engine(llm)
+# ENGINE = "LOCAL"
+ENGINE = "CACHE"
+
+llm = my_llm.get_llm()
+# llm = None if ENGINE == "CACHE" else my_llm.get_llm()
+
+# queryEngine = my_llm.get_query_engine_from_cache() if ENGINE == "CACHE" else my_llm.get_query_engine(llm)
 
 async def transmit(websocket, path):
+
     print("Client Connected !",path,'********************************************************')
-    # print(query)
+
     try :
         query = ''
         # query.strip()
         
         while True:
             query = await websocket.recv()
-            # print(query)
-            # convert to dict
             query = json.loads(query)
+            filename = query['filename']
+
+            queryEngine = my_llm.get_query_engine_from_cache(llm, filename) if ENGINE == "CACHE" else my_llm.get_query_engine(llm, filename)
+        
             print(query)
 
             prompt = f"""Answer within context of {query["game"]}.
             Question : {query["question"]}
             Instructions : answer the question STRICTLY in the context of the game. You cannot invent any new information, but are allowed to draw conclusions from the existing knowledge base of {query["game"]}.csv.
-            What is the sentiment score of the reviews out of 10? Mention it at the start of your answer.
             Use \n token to symbolize the number of newlines after each paragraph.
             Use \t token at the start of sentences to symbolize tab space wherever required.
             """
@@ -40,8 +45,11 @@ async def transmit(websocket, path):
             #     break
 
             # -----------------------------------------------------------------
+
+            print("-----LOGGING----- before queryEngine.query")
+            myStreamResponse = queryEngine.query(prompt)
+            print("-----LOGGING----- after queryEngine.query")
             
-            myStreamResponse =queryEngine.query(prompt)
             for text in myStreamResponse.response_gen:
                 print(text,end='')
                 message = {
@@ -98,9 +106,9 @@ async def transmit(websocket, path):
         print("Client Disconnected !",path)
 
 async def main():
-    
+
     # start_server = await websockets.serve(transmit, "192.168.255.31", PORT)
-    start_server = await websockets.serve(transmit, "localhost", PORT)
+    start_server = await websockets.serve(transmit, "0.0.0.0", PORT) # for docker container the host is set to 0.0.0.0
     print("Server Started with URL : ", start_server.server)
     print("Started server on port : ", PORT)
     await start_server.wait_closed()
