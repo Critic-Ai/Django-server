@@ -4,7 +4,7 @@ Setup instructions
 
 ## MongoDB
 
-1) replace the clusterurl in `myapp/views.py`
+1) replace the values in `.env.example` and rename it to `.env`
 
 2) in the root folder run the following command:
 
@@ -22,7 +22,7 @@ Two ways:
 
 ### Docker
 1) In llm/server.py set `ISDOCKER = True` and change `PORT` if needed
-2) In an **elevated terminal**:
+2) Run the following in an **elevated terminal**:
 
 ```bash
 docker build -t llm_server ./llm
