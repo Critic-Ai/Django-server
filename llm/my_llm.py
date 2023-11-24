@@ -30,9 +30,9 @@ def get_llm():
 
     llm = LlamaCPP(
         # You can pass in the URL to a GGML model to download it automatically
-        model_url=model_url,
+        # model_url=model_url,
         # optionally, you can set the path to a pre-downloaded model instead of model_url
-        # model_path="llama-2-13b-chat.Q4_0.gguf",
+        model_path="llama-2-13b-chat.Q4_0.gguf",
         temperature=0.1,
         max_new_tokens=2048,
         # llama2 has a context window of 4096 tokens, but we set it lower to allow for some wiggle room

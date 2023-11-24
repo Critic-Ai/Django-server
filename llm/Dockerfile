@@ -1,5 +1,4 @@
-# Use the official Python image for Python 3.11
-FROM python:3.11
+FROM nvidia/cuda:11.7.1-devel-ubuntu22.04
 
 # Set the working directory in the container
 WORKDIR /app
@@ -7,14 +6,15 @@ WORKDIR /app
 # Copy the current directory contents into the container at /app
 COPY . /app
 
-ENV FORCE_CMAKE=1
+# Install Python and pip
+RUN apt-get update && apt-get install -y python3 python3-pip
 
-ENV CMAKE_ARGS="-DLLAMA_CUBLAS=on"
+# Set environment variable
+ENV CMAKE_ARGS="-DLLAMA_CUBLAS=ON"
 
-
-# Install project dependencies
-
-RUN pip install --no-cache-dir --force-reinstall -r requirements.txt
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install -r requirements.txt --no-cache-dir
 
 # Command to run the server
-CMD ["python", "./server.py"]
+CMD ["python3", "./server.py"]
