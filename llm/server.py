@@ -4,15 +4,9 @@ import json
 import my_llm
 import time
 
-PORT = 2023
-
-# ENGINE = "LOCAL"
 ENGINE = "CACHE"
 
 llm = my_llm.get_llm()
-# llm = None if ENGINE == "CACHE" else my_llm.get_llm()
-
-# queryEngine = my_llm.get_query_engine_from_cache() if ENGINE == "CACHE" else my_llm.get_query_engine(llm)
 
 async def transmit(websocket, path):
 
@@ -59,41 +53,6 @@ async def transmit(websocket, path):
                 await websocket.send(json.dumps(message))
                 await asyncio.sleep(0.05)
             
-            # -----------------------------------------------------------------
-            # TEST
-            # for i in range(20):
-            #     # print(text,end='')
-            #     print("Sending to client")
-
-            #     if i==19:
-            #         message = {
-            #             'event': 'dev-test-endpoint',
-            #             'text': "ENDEND"
-            #         }
-            #         await websocket.send(json.dumps(message))
-            #         await asyncio.sleep(0.5)
-            #         break
-
-            #     message = {
-            #         'event': 'dev-test-endpoint',
-            #         'text': "couldhavewouldhaveshouldhave\\n"
-            #     }
-            #     await websocket.send(json.dumps(message))
-            #     await asyncio.sleep(0.5)
-
-            # -----------------------------------------------------------------
-
-                # response = response + text
-                # await websocket.send('text-generated',text)
-                # await websocket.send(str(text))  
-            # await websocket.send(response)
-            
-            # -----------------------------------------------------------------
-            # response_iter = llm.stream_complete(query)
-            # for response in response_iter:
-            #     print(response.delta, end="", flush=True)
-            #     myResponse = myResponse + response.delta
-            
                 
     except websockets.exceptions.ConnectionClosedOK as e:
         # set authID to null when client disconnects to avoid authID conflict
@@ -107,10 +66,16 @@ async def transmit(websocket, path):
 
 async def main():
 
-    # start_server = await websockets.serve(transmit, "192.168.255.31", PORT)
-    start_server = await websockets.serve(transmit, "0.0.0.0", PORT) # for docker container the host is set to 0.0.0.0
+    ISDOCKER = False
+    PORT = 2023
+
+    SERVER_URL = "0.0.0.0" if ISDOCKER else "127.0.0.1"
+
+    start_server = await websockets.serve(transmit, SERVER_URL, PORT)
+
     print("Server Started with URL : ", start_server.server)
     print("Started server on port : ", PORT)
+
     await start_server.wait_closed()
 
 asyncio.run(main())
